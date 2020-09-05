@@ -70,6 +70,8 @@ enum DEFNS {MIN_PIN, MAX_PIN, MAX_TRAVEL, FAST_RATE, SLOW_RATE, RETRACT, DIRECTI
 #define beta_trim_checksum               CHECKSUM("beta_trim_mm")
 #define gamma_trim_checksum              CHECKSUM("gamma_trim_mm")
 
+#define cartesian_swap_yz_checksum   CHECKSUM("cartesian_swap_yz")
+
 // new config syntax
 // endstop.xmin.enable true
 // endstop.xmin.pin 1.29
@@ -416,6 +418,7 @@ void Endstops::get_global_configs()
     }else{
         this->park_after_home= false;
     }
+    this->swap_yz = THEKERNEL->config->value(cartesian_swap_yz_checksum)->by_default(false)->as_bool();
 }
 void Endstops::on_idle(void*)
 {
@@ -574,6 +577,10 @@ void Endstops::check_limits()
         if(!i->limit_enable) continue;
         uint8_t m= i->axis_index;
         bool moving= false;
+        if (swap_yz && m == Z_AXIS)
+            m = Y_AXIS;
+        else if (swap_yz && m == Y_AXIS)
+            m = Z_AXIS;
         if(is_corexy && m < 2) {
             // corexy either X or Y stepper moving can result in movement towards a limit
             moving=  STEPPER[0]->is_moving() || STEPPER[1]->is_moving();
@@ -611,6 +618,10 @@ uint32_t Endstops::read_endstops(uint32_t dummy)
     for(auto& e : homing_axis) { // check all axis homing endstops
         if(e.pin_info == nullptr) continue; // ignore if not a homing endstop
         int m= e.axis_index;
+        if (swap_yz && m == Z_AXIS)
+            m = Y_AXIS;
+        else if (swap_yz && m == Y_AXIS)
+            m = Z_AXIS;
 
         // for corexy homing in X or Y we must only check the associated endstop,
         // this works as we only home one axis at a time for corexy

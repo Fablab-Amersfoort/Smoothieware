@@ -10,7 +10,13 @@
 class CartesianSolution : public BaseSolution {
     public:
         CartesianSolution(){};
-        CartesianSolution(Config*){};
+        CartesianSolution(Config*);
         void cartesian_to_actuator( const float millimeters[], ActuatorCoordinates &steps ) const override;
         void actuator_to_cartesian( const ActuatorCoordinates &steps, float millimeters[] ) const override;
+    private:
+        unsigned axis_to_actuator[3] = {
+            [X_AXIS] = ALPHA_STEPPER,
+            [Y_AXIS] = BETA_STEPPER,
+            [Z_AXIS] = GAMMA_STEPPER,
+        };
 };

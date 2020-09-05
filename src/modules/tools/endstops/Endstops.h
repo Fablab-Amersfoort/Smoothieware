@@ -90,6 +90,7 @@ class Endstops : public Module{
         struct {
             uint32_t homing_order:18;
             volatile char status:3;
+            bool swap_yz:1;
             bool is_corexy:1;
             bool is_delta:1;
             bool is_rdelta:1;
