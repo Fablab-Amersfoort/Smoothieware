@@ -20,6 +20,7 @@ using namespace std;
 #include "libs/ConfigSources/FileConfigSource.h"
 #include "libs/ConfigSources/FirmConfigSource.h"
 #include "StreamOutputPool.h"
+#include "libs/Pin.h"
 
 // Add various config sources. Config can be fetched from several places.
 // All values are read into a cache, that is then used by modules to read their configuration
@@ -46,6 +47,20 @@ Config::Config()
         fcs = new FileConfigSource("/sd/config.txt", "sd");
     if( fcs != NULL )
         this->config_sources.push_back( fcs );
+
+    const char* extra_file = "/sd/config-rotation";
+    if( file_exists(extra_file) ) {
+        auto input_pin = new Pin();
+        input_pin->from_string("1.29!^");
+        if (input_pin->get()) {
+            fcs = new FileConfigSource(extra_file, "sd");
+            this->config_sources.push_back( fcs );
+        }
+        // Note, this does not deconfigure the pin (i.e. disable
+        // pullup), but that's ok.
+        delete input_pin;
+    }
+
 }
 
 Config::Config(ConfigSource *cs)
