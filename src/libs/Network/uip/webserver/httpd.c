@@ -305,6 +305,8 @@ static PT_THREAD(send_headers_3(struct httpd_state *s, const char *statushdr, ch
             PSOCK_SEND_STR(&s->sout, http_content_type_gif);
         } else if (strncmp(http_jpg, ptr, 4) == 0) {
             PSOCK_SEND_STR(&s->sout, http_content_type_jpg);
+        } else if (strncmp(http_js, ptr, 3) == 0) {
+            PSOCK_SEND_STR(&s->sout, http_content_type_js);
         } else {
             PSOCK_SEND_STR(&s->sout, http_content_type_plain);
         }
